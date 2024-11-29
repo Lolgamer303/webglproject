@@ -12,6 +12,19 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+
+}
+.custom-select {
+  margin-left: 4px;
+  background-color: transparent;
+  color: white; /* Optional: to ensure text is visible */
+  border: 1px solid white; /* Optional: to add a border */
+  border-radius: 6px;
+}
+
+.custom-select option {
+  background-color: black; /* Optional: to ensure options are visible */
+  color: white; /* Optional: to ensure text is visible */
 }
 
 
