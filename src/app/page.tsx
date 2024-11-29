@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 export default function Home() {
     const [sceneStarted, setSceneStarted] = useState(false);
-    const [isClient, setIsClient] = useState(false);
+    const [, setIsClient] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -19,18 +19,7 @@ export default function Home() {
     };
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center">
-            {isClient && (
-                <div className="absolute top-0 left-0 w-full h-full z-[-1] overflow-hidden bg-black">
-                    <video
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        src="/video/background.mp4"
-                    />
-                </div>
-            )}
+        <div className="relative flex min-h-screen items-center justify-center bg-gray-800">
             <main className="relative z-10 text-center max-w-lg px-6">
                 <h1 className="text-5xl font-bold mb-4">
                     <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-teal-400 bg-clip-text text-transparent">
