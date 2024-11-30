@@ -28,7 +28,7 @@ export default function Home() {
                 </h1>
                 <p className="text-lg text-gray-200 mb-8 leading-relaxed">
                     WebGL Showcase is a personal project designed to demonstrate
-                    the power of 3D rendering with WebGL. This project is hosted
+                    the power of 3D Raymarching rendering with WebGL. This project is hosted
                     in the cloud for showcasing purposes. Join me in exploring the
                     capabilities of WebGL and 3D scenes!
                 </p>
