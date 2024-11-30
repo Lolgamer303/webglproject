@@ -5,64 +5,86 @@ import * as THREE from 'three';
 import vertex from '../shaders/vertex';
 import fragment from '../shaders/fragment';
 
-type ObjectMode = "Sphere" | "Cube" | "Prism";
+type ObjectMode = "Sphere" | "Cube" | "Octahedron";
 
 interface ShaderPlaneProps {
     color: THREE.Vector3,
     distance: number,
     objectMode: ObjectMode,
+    objectSize: number,
+    AA: boolean,
+    setDistance: React.Dispatch<React.SetStateAction<number>>,
 }
 
-function ShaderPlane({color, distance, objectMode}: ShaderPlaneProps) {
+const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance }: ShaderPlaneProps) => {
     const { size, gl } = useThree();
+    const [mousePosition, ] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [rotationAngleX, setRotationAngleX] = useState(0);
+    const [rotationAngleY, setRotationAngleY] = useState(0);
 
-    // State for mouse position
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [, setTrueMousePos] = useState({ x: 0, y: 0})
 
-    // Mouse event listener to update mouse position
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            if (event.buttons === 1) { // Check if the left mouse button is pressed
-                // Convert mouse position to normalized device coordinates
-                const x = (event.clientX / size.width) * 2 - 1;
-                const y = -(event.clientY / size.height) * 2 + 1;
-                setMousePosition({ x, y });
-            } else {
-                setMousePosition({ x: 0, y: 0 });
+            if (isDragging) {
+                const deltaX = event.movementX;
+                const deltaY = event.movementY;
+                const newAngleX = rotationAngleX + deltaX * 0.001;
+                setRotationAngleX(newAngleX);
+                const newAngleY = rotationAngleY + deltaY * 0.001;
+                setRotationAngleY(newAngleY);
             }
-            setTrueMousePos({x: event.clientX / size.width * 2 - 1,y: event.clientY / size.height * 2 + 1});
+        };
+
+        const handleMouseDown = () => {
+            setIsDragging(true);
         };
 
         const handleMouseUp = () => {
-            setMousePosition({ x: 0, y: 0 });
+            setIsDragging(false);
         };
 
-        // Add event listeners
+        const handleScroll = (event: WheelEvent) => {
+            const newDistance = distance + event.deltaY / 10;
+            console.log(newDistance);
+            console.log(event.deltaY);
+            if (newDistance >= 100 && newDistance <= 1500) {
+                setDistance(newDistance);
+            }
+        }
+
         gl.domElement.addEventListener('mousemove', handleMouseMove);
+        gl.domElement.addEventListener('mousedown', handleMouseDown);
         gl.domElement.addEventListener('mouseup', handleMouseUp);
+        gl.domElement.addEventListener('wheel', handleScroll);
 
         // Clean up on unmount
         return () => {
             gl.domElement.removeEventListener('mousemove', handleMouseMove);
+            gl.domElement.removeEventListener('mousedown', handleMouseDown);
             gl.domElement.removeEventListener('mouseup', handleMouseUp);
+            gl.domElement.removeEventListener('wheel', handleScroll);
         };
-    }, [gl.domElement, size.width, size.height]);
+    }, [gl.domElement, rotationAngleX, isDragging, rotationAngleY, setDistance, distance]);
 
     // Define uniforms with useMemo to initialize once
     const tuniform = useMemo(() => {
         const uniforms = {
             iTime: { value: 0 },
-            angle: { value: 0},
-            sphereColor: { value: new THREE.Vector3(0, 0, 0)},
+            angleX: { value: 0 },
+            angleY: { value: 0 },
+            sphereColor: { value: new THREE.Vector3(0, 0, 0) },
             iResolution: { value: new THREE.Vector2(size.width, size.height) },
-            distanceToCenter: { value: distance },
             Mouse: { value: new THREE.Vector2(0, 0) }, // Initialize mouse uniform
-            mode: { value: 0 }
+            mode: { value: 0 },
+            size: { value: objectSize / 100 },
+            enableAntiAliasing: { value: AA },
+            cameraPos: { value: new THREE.Vector3(0, 0, distance / 100) }, // Initial camera position
+            targetPos: { value: new THREE.Vector3(0, 0, 0) }  // Target position at the origin
         };
 
         return uniforms;
-    }, [size.width, size.height, distance]);
+    }, [size.width, size.height, distance, objectSize, AA]);
 
     // Create the ShaderMaterial once with useMemo
     const shaderMaterial = useMemo(() => {
@@ -79,27 +101,22 @@ function ShaderPlane({color, distance, objectMode}: ShaderPlaneProps) {
         tuniform.iTime.value = clock.getElapsedTime();
         tuniform.Mouse.value.set(mousePosition.x, mousePosition.y);
         tuniform.sphereColor.value.set(color.x, color.y, color.z);
-        tuniform.distanceToCenter.value = distance;
+        tuniform.cameraPos.value = new THREE.Vector3(0, 0, distance / 100);
+        tuniform.size.value = objectSize / 100;
+        tuniform.enableAntiAliasing.value = AA;
+        tuniform.angleX.value = rotationAngleX;
+        tuniform.angleY.value = rotationAngleY;
         switch (objectMode) {
             case "Sphere":
                 tuniform.mode.value = 0;
-                console.log("Sphere")
                 break;
             case "Cube":
                 tuniform.mode.value = 1;
-                console.log("Cube")
                 break;
-            case "Prism":
+            case "Octahedron":
                 tuniform.mode.value = 2;
-                console.log("Prism")
                 break;
         }
-        if (mousePosition.x === 0 && mousePosition.y === 0) {
-            tuniform.angle.value = 0.0; // Increment angle based on time
-        } else {
-            tuniform.angle.value += mousePosition.x * 0.01; // Modify angle based on mouse input
-        }
-        console.log(tuniform.angle.value)
     });
 
     return (
@@ -107,6 +124,6 @@ function ShaderPlane({color, distance, objectMode}: ShaderPlaneProps) {
             <planeGeometry args={[size.width, size.height]} />
         </mesh>
     );
-}
+};
 
 export default ShaderPlane;
