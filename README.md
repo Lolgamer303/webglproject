@@ -11,7 +11,7 @@ This project leverages WebGL to render stunning 3D graphics directly in the brow
 - **Interactive 3D Models**: Explore and interact with a world of 3D models.
 - **Real-time Rendering**: Experience smooth and real-time rendering of graphics.
 - **Ray Marching**: Demonstrates the power of ray marching to render simple shapes.
-**Please note that this project is not responsive and can be hard to use on a small devices.**
+- **Please note that this project is not responsive and can be hard to use on a small devices.**
 
 ## Technologies Used
 
