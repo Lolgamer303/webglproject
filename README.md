@@ -20,12 +20,13 @@ This project leverages WebGL to render stunning 3D graphics directly in the brow
 - **Three.js**: A JavaScript library that makes WebGL easier to use.
 
 ## Getting Started
+Here's a link to the [live demo](https://webglshowcase.vercel.app/)
 
-To get started with this project, follow these steps:
+To get started with this project locally, follow these steps:
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/webglproject.git
+    git clone https://github.com/Lolgamer303/webglproject.git
     ```
 2. **Install dependencies**:
     ```bash
