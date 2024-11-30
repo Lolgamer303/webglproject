@@ -61,7 +61,7 @@ export default function ShaderOption({
         <div className='rounded-md bg-gray-800 text-2xl opacity-95 absolute right-[150px] flex flex-col top-[100px] h-[30vh] w-[13vw] items-center justify-center text-white'>
             <div className='relative top-[-60px] text-gray-400 underline font-bold'>Shader Options</div>
             <div className='mb-2'>
-                Sphere Color :
+                Object Color :
                 <input
                     type='color'
                     className='bg-transparent align-middle pl-2'
