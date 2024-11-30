@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WebGL Showcase Project
+
+Welcome to my WebGL Showcase Project! This project is a personal endeavor to explore and demonstrate the capabilities of WebGL in creating interactive 3D graphics within a web application.
+
+## Project Overview
+
+This project leverages WebGL to render stunning 3D graphics directly in the browser. It is built using React to manage the user interface and interactions, providing a seamless and dynamic experience. The power of ray marching is showcased through the rendering of simple shapes.
+
+## Features
+
+- **Interactive 3D Models**: Explore and interact with a world of 3D models.
+- **Real-time Rendering**: Experience smooth and real-time rendering of graphics.
+- **Ray Marching**: Demonstrates the power of ray marching to render simple shapes.
+**Please note that this project is not responsive and can be hard to use on a small devices.**
+
+## Technologies Used
+
+- **WebGL**: For rendering 3D graphics.
+- **React**: For building the user interface.
+- **Three.js**: A JavaScript library that makes WebGL easier to use.
 
 ## Getting Started
 
-First, run the development server:
+To get started with this project, follow these steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/yourusername/webglproject.git
+    ```
+2. **Install dependencies**:
+    ```bash
+    cd webglproject
+    npm install
+    ```
+3. **Run the development server**:
+    ```bash
+    npm start
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Contributions are welcome! If you have any suggestions or improvements, feel free to create an issue or submit a pull request.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## License
 
-## Learn More
+This project is licensed under the MIT License.
 
-To learn more about Next.js, take a look at the following resources:
+## Contact
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For any questions or inquiries, please contact me at nathanchaps@icloud.com.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Thank you for visiting my WebGL Showcase Project!
