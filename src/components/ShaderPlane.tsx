@@ -3,7 +3,8 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import vertex from '../shaders/vertex';
-import fragment from '../shaders/fragment';
+import demo_fragment from '../shaders/default_demo/fragment';
+import fragment from '../shaders/explication_scene/fragment';
 
 type ObjectMode = "Sphere" | "Cube" | "Octahedron";
 
@@ -14,9 +15,11 @@ interface ShaderPlaneProps {
     objectSize: number,
     AA: boolean,
     setDistance: React.Dispatch<React.SetStateAction<number>>,
+    educationScene?: boolean
+    stepNumber?: number
 }
 
-const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance }: ShaderPlaneProps) => {
+const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance, educationScene, stepNumber }: ShaderPlaneProps) => {
     const { size, gl } = useThree();
     const [mousePosition, ] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
@@ -75,7 +78,8 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance 
             angleY: { value: 0 },
             sphereColor: { value: new THREE.Vector3(0, 0, 0) },
             iResolution: { value: new THREE.Vector2(size.width, size.height) },
-            Mouse: { value: new THREE.Vector2(0, 0) }, // Initialize mouse uniform
+            Mouse: { value: new THREE.Vector2(0, 0) },
+            iStep: { value: 0}, // Initialize mouse uniform
             mode: { value: 0 },
             size: { value: objectSize / 100 },
             enableAntiAliasing: { value: AA },
@@ -91,7 +95,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance 
         return new THREE.ShaderMaterial({
             uniforms: tuniform,
             vertexShader: vertex,
-            fragmentShader: fragment,
+            fragmentShader: (educationScene) ? fragment : demo_fragment,
             side: THREE.DoubleSide,
         });
     }, [tuniform]);
@@ -106,6 +110,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance 
         tuniform.enableAntiAliasing.value = AA;
         tuniform.angleX.value = rotationAngleX;
         tuniform.angleY.value = rotationAngleY;
+        tuniform.iStep.value = stepNumber ? stepNumber : 0;
         switch (objectMode) {
             case "Sphere":
                 tuniform.mode.value = 0;
