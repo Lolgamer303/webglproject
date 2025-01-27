@@ -16,9 +16,8 @@ varying vec2 uvs;
 
 bool isMiddleCube = false;
 
-float distanceToSphere(vec3 p, float size) {
-    p = vec3(0.);
-    vec3 sphereCenter = vec3(0., 0., 0.);
+float distanceToSphere(vec3 p, vec3 loc, float size) {
+    vec3 sphereCenter = loc;
     float radius = size;
     return length(p - sphereCenter) - radius;
 }
@@ -57,7 +56,7 @@ float sceneDistance(vec3 p) {
         return 0.0;
     }
     else if (iStep == 1) {
-        return distanceToSphere(p, 2.0);
+        return distanceToSphere(p, vec3(0., 0., 0.), 2.0);
     }
     else if (iStep == 2) {
         return distanceToCube(p, 2.0);
@@ -96,7 +95,12 @@ vec3 ray_march(vec3 rO, vec3 rD) {
         dis = sceneDistance(rayOrigin);
         if (dis < 0.001) {
             vec3 color = getObjectColor();
-            vec3 normal = calculate_normals(rayOrigin);
+            vec3 normal;
+            if (iStep == 1) {
+                normal = vec3(1.0, 1.0, 1.0);
+            } else {
+                normal = calculate_normals(rayOrigin);
+            }
             vec3 light_position = vec3(2.0, -5.0, 3.0);
             vec3 direction_to_light = normalize(light_position - rayOrigin);
             float diffuse_intensity = max(0.0, dot(normal, direction_to_light));
