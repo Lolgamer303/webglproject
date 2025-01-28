@@ -23,7 +23,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
     const { size, gl } = useThree();
     const [mousePosition, ] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
-    const [rotationAngleX, setRotationAngleX] = useState(0);
+    const [rotationAngleX, setRotationAngleX] = useState(180);
     const [rotationAngleY, setRotationAngleY] = useState(0);
 
 
@@ -32,9 +32,9 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
             if (isDragging) {
                 const deltaX = event.movementX;
                 const deltaY = event.movementY;
-                const newAngleX = rotationAngleX + deltaX * 0.001;
+                const newAngleX = rotationAngleX + deltaX * 0.004;
                 setRotationAngleX(newAngleX);
-                const newAngleY = rotationAngleY + deltaY * 0.001;
+                const newAngleY = rotationAngleY + deltaY * 0.004;
                 setRotationAngleY(newAngleY);
             }
         };
@@ -48,9 +48,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
         };
 
         const handleScroll = (event: WheelEvent) => {
-            const newDistance = distance + event.deltaY / 10;
-            console.log(newDistance);
-            console.log(event.deltaY);
+            const newDistance = distance + event.deltaY;
             if (newDistance >= 100 && newDistance <= 1500) {
                 setDistance(newDistance);
             }
@@ -74,7 +72,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
     const tuniform = useMemo(() => {
         const uniforms = {
             iTime: { value: 0 },
-            angleX: { value: 0 },
+            angleX: { value: 180 },
             angleY: { value: 0 },
             sphereColor: { value: new THREE.Vector3(0, 0, 0) },
             iResolution: { value: new THREE.Vector2(size.width, size.height) },

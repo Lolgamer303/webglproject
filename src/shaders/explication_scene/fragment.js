@@ -7,19 +7,35 @@ uniform vec3 sphereColor;
 uniform float angleX;
 uniform float angleY;
 uniform float size;
-uniform int mode; // 0 for Sphere, 1 for Cube, 2 for Octahedron
 uniform bool enableAntiAliasing;
 uniform vec3 cameraPos;
 uniform vec3 targetPos;
 uniform int iStep;
 varying vec2 uvs;
 
-bool isMiddleCube = false;
 
 float distanceToSphere(vec3 p, vec3 loc, float size) {
     vec3 sphereCenter = loc;
     float radius = size;
     return length(p - sphereCenter) - radius;
+}
+
+float distanceToHalfSphere(vec3 p, vec3 loc, float size) {
+    vec3 sphereCenter = loc;
+    float radius = size;
+    vec3 d = p - sphereCenter;
+    float distToSphere = length(d) - radius;
+    float distToPlane = dot(d, vec3(0.0, 1.0, 0.0));
+    return max(distToSphere, distToPlane);
+}
+
+float distanceToPlane( vec3 p, vec3 n, float h ) {
+  // n must be normalized
+  return dot(p, n) + h;
+}
+float distanceToBox(vec3 p, vec3 b) {
+    vec3 d = abs(p) - b;
+    return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
 }
 
 float distanceToCube(vec3 p, float size) {
@@ -37,6 +53,22 @@ float distanceToMiddleCube(vec3 p, float size) {
     return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
+// arbitrary orientation
+float distanceToCylinder(vec3 p, vec3 a, vec3 b, float r)
+{
+    vec3 pa = p - a;
+    vec3 ba = b - a;
+    float baba = dot(ba,ba);
+    float paba = dot(pa,ba);
+
+    float x = length(pa*baba-ba*paba) - r*baba;
+    float y = abs(paba-baba*0.5)-baba*0.5;
+    float x2 = x*x;
+    float y2 = y*y*baba;
+    float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
+    return sign(d)*sqrt(abs(d))/baba;
+}
+
 float distanceToOctahedron(vec3 p, float s) {
     p = mod(p, 1.0) - vec3(0.5);
     p = abs(p);
@@ -50,21 +82,88 @@ float distanceToOctahedron(vec3 p, float s) {
     float k = clamp(0.5 * (q.z - q.y + s), 0.0, s);
     return length(vec3(q.x, q.y - s + k, q.z - k));
 }
+float distanceToPyramid(vec3 p, float h, vec3 rotation) {
+    // Apply rotation
+    mat3 rotX = mat3(
+        1.0, 0.0, 0.0,
+        0.0, cos(rotation.x), -sin(rotation.x),
+        0.0, sin(rotation.x), cos(rotation.x)
+    );
+    mat3 rotY = mat3(
+        cos(rotation.y), 0.0, sin(rotation.y),
+        0.0, 1.0, 0.0,
+        -sin(rotation.y), 0.0, cos(rotation.y)
+    );
+    mat3 rotZ = mat3(
+        cos(rotation.z), -sin(rotation.z), 0.0,
+        sin(rotation.z), cos(rotation.z), 0.0,
+        0.0, 0.0, 1.0
+    );
+    p = rotX * rotY * rotZ * p;
+
+    float m2 = h * h + 0.25;
+        
+    // symmetry
+    p.xz = abs(p.xz);
+    p.xz = (p.z > p.x) ? p.zx : p.xz;
+    p.xz -= 0.5;
+        
+    // project into face plane (2D)
+    vec3 q = vec3(p.z, h * p.y - 0.5 * p.x, h * p.x + 0.5 * p.y);
+       
+    float s = max(-q.x, 0.0);
+    float t = clamp((q.y - 0.5 * p.z) / (m2 + 0.25), 0.0, 1.0);
+        
+    float a = m2 * (q.x + s) * (q.x + s) + q.y * q.y;
+    float b = m2 * (q.x + 0.5 * t) * (q.x + 0.5 * t) + (q.y - m2 * t) * (q.y - m2 * t);
+        
+    float d2 = min(q.y, -q.x * m2 - q.y * 0.5) > 0.0 ? 0.0 : min(a, b);
+        
+    // recover 3D and scale, and add sign
+    return sqrt((d2 + q.z * q.z) / m2) * sign(max(q.z, -p.y));
+}
 
 float sceneDistance(vec3 p) {
     if (iStep == 0) {
-        return 0.0;
+        return 1000.0;
     }
     else if (iStep == 1) {
         return distanceToSphere(p, vec3(0., 0., 0.), 2.0);
     }
     else if (iStep == 2) {
-        return distanceToCube(p, 2.0);
+        return distanceToBox(p, vec3(1.,1.,0.01));
     }
     else if (iStep == 3) {
-        return distanceToOctahedron(p, 2.0);
+        return min(distanceToBox(p, vec3(1.,1.,0.01)), min(distanceToBox(p + vec3(0., 0., 2.5), vec3(0.3,0.3,0.6)), distanceToPyramid(p + vec3(0., 0., 1.5), 0.5, vec3(-1.5, 0.0, 0.0))));
     }
-    return 0.0;
+    else if (iStep == 4 || iStep == 5 || iStep == 6) {
+        float dist1 = min(distanceToBox(p + vec3(0., 0., 2.5), vec3(0.3,0.3,0.6)), distanceToPyramid(p + vec3(0., 0., 1.5), 0.5, vec3(-1.5, 0.0, 0.0)));
+        float dist2 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 1., 10.), vec3(0., 0., 0.5), 0.02), distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 0., 10.), vec3(0., 0., 0.5), 0.02));
+        float dist3 = min(dist1, dist2);
+        float dist4 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 1., 10.), vec3(0., 0., 0.5), 0.02), distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 0., 10.), vec3(0., 0., 0.5), 0.02));
+        float dist5 = min(dist4, dist3);
+        return min(distanceToBox(p, vec3(1.,1.,0.01)), dist5);
+    }
+    else if (iStep == 7) {
+        float dist1 = min(distanceToHalfSphere(p, vec3(0., 0., 0.), 1.0), distanceToSphere(p, vec3(2., 0., 0.5), 0.05));
+        float dist2 = min(distanceToSphere(p, vec3(0., 0., 0.), 0.05), dist1);
+        float dist3 = min(distanceToCylinder(p + vec3(0., 0., 0.), vec3(2., 0., 0.5), vec3(0., 0., 0.), 0.02), distanceToCylinder(p + vec3(0., 0., 0.), vec3(1., 0., 0.25), vec3(0., 0., 0.), 0.04));
+        float dist4 = min(dist2, dist3);
+        return dist4;
+    }
+    else if (iStep == 8) {
+        float dist1 = min(distanceToBox(p + vec3(0., 0., 2.5), vec3(0.3,0.3,0.6)), distanceToPyramid(p + vec3(0., 0., 1.5), 0.5, vec3(-1.5, 0.0, 0.0)));
+        float dist2 = distanceToCylinder(p + vec3(0., 0., 2.), vec3(2., 0., 10.), vec3(0., 0., 0.5), 0.02);
+        float dist3 = min(dist1, dist2);
+        float dist6 = min(distanceToHalfSphere(p, vec3(0., 0., 4.), 1.0), distanceToSphere(p, vec3(0., 0., 4.), 0.05));
+        float dist10 = min(dist3, dist6);
+        for (int i = 0; i < 3; i++) {
+
+        }
+        return min(distanceToBox(p, vec3(1.,1.,0.01)), dist10);
+    }
+
+    return 1000.0;
 }
 
 vec3 calculate_normals(in vec3 p) {
@@ -80,9 +179,6 @@ vec3 calculate_normals(in vec3 p) {
 }
 
 vec3 getObjectColor() {
-    if (isMiddleCube) {
-        return vec3(1.0, 0.0, 0.0);
-    }
     return sphereColor;
 }
 
@@ -91,25 +187,24 @@ vec3 ray_march(vec3 rO, vec3 rD) {
     vec3 rayDirection = rD;
     int iterationsCount = 0;
     float dis;
-    for (int i = 0; i < 1000; i++) {
+    float prevDis = 0.0;
+    for (int i = 0; i < 100; i++) {
         dis = sceneDistance(rayOrigin);
-        if (dis < 0.001) {
+        if (dis < 0.01) {
             vec3 color = getObjectColor();
-            vec3 normal;
-            if (iStep == 1) {
-                normal = vec3(1.0, 1.0, 1.0);
-            } else {
-                normal = calculate_normals(rayOrigin);
-            }
-            vec3 light_position = vec3(2.0, -5.0, 3.0);
+            vec3 normal = calculate_normals(rayOrigin);
+            vec3 light_position = vec3(2.0, 5.0, -10.0);
             vec3 direction_to_light = normalize(light_position - rayOrigin);
             float diffuse_intensity = max(0.0, dot(normal, direction_to_light));
             return color * diffuse_intensity;
         }
+        if (dis > 100.0 && prevDis >= dis) {
+            break;
+        }
         rayOrigin += rayDirection * dis;
         iterationsCount += 1;
     }
-    return vec3(0.0); // Background color
+    return vec3(0.1); // Background color
 }
 
 vec3[2] applyCameraRotation(vec3 rayOrigin, vec3 rayDirection, vec3 targetPos) {
