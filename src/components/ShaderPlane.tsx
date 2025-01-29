@@ -86,7 +86,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
         };
 
         return uniforms;
-    }, [size.width, size.height, distance, objectSize, AA]);
+    }, [size.width, size.height, distance, objectSize, AA, educationScene]);
 
     // Create the ShaderMaterial once with useMemo
     const shaderMaterial = useMemo(() => {
