@@ -19,6 +19,10 @@ float distanceToSphere(vec3 p, vec3 loc, float size) {
     float radius = size;
     return length(p - sphereCenter) - radius;
 }
+float distanceToTorus(vec3 p, vec2 t) {
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+  return length(q)-t.y;
+}
 
 float distanceToHalfSphere(vec3 p, vec3 loc, float size) {
     vec3 sphereCenter = loc;
@@ -58,15 +62,35 @@ float distanceToCylinder(vec3 p, vec3 a, vec3 b, float r)
 {
     vec3 pa = p - a;
     vec3 ba = b - a;
-    float baba = dot(ba,ba);
-    float paba = dot(pa,ba);
+    float baba = dot(ba, ba);
+    float paba = dot(pa, ba);
 
-    float x = length(pa*baba-ba*paba) - r*baba;
-    float y = abs(paba-baba*0.5)-baba*0.5;
-    float x2 = x*x;
-    float y2 = y*y*baba;
-    float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
-    return sign(d)*sqrt(abs(d))/baba;
+    // Check for division by zero
+    if (baba == 0.0) {
+        return 1000.0; // or some other appropriate value indicating a large distance
+    }
+
+    // Calculate the projection of p onto the line defined by a and b
+    float t = clamp(paba / baba, 0.0, 1.0);
+    vec3 closestPoint = a + t * ba;
+
+    // Check if p is within a reasonable range of the cylinder
+    if (distance(p, closestPoint) > r + 100.0) { // Adjust the threshold as needed
+        return 1000.0; // or some other appropriate value indicating a large distance
+    }
+
+    float x = length(pa * baba - ba * paba) - r * baba;
+    float y = abs(paba - baba * 0.5) - baba * 0.5;
+    float x2 = x * x;
+    float y2 = y * y * baba;
+    float d = (max(x, y) < 0.0) ? -min(x2, y2) : (((x > 0.0) ? x2 : 0.0) + ((y > 0.0) ? y2 : 0.0));
+
+    // Check for negative value under the square root
+    if (d < 0.0) {
+        return 1000.0; // or some other appropriate value indicating a large distance
+    }
+
+    return sign(d) * sqrt(abs(d)) / baba;
 }
 
 float distanceToOctahedron(vec3 p, float s) {
@@ -138,31 +162,38 @@ float sceneDistance(vec3 p) {
     }
     else if (iStep == 4 || iStep == 5 || iStep == 6) {
         float dist1 = min(distanceToBox(p + vec3(0., 0., 2.5), vec3(0.3,0.3,0.6)), distanceToPyramid(p + vec3(0., 0., 1.5), 0.5, vec3(-1.5, 0.0, 0.0)));
-        float dist2 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 1., 10.), vec3(0., 0., 0.5), 0.02), distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 0., 10.), vec3(0., 0., 0.5), 0.02));
-        float dist3 = min(dist1, dist2);
-        float dist4 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 1., 10.), vec3(0., 0., 0.5), 0.02), distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 0., 10.), vec3(0., 0., 0.5), 0.02));
-        float dist5 = min(dist4, dist3);
+        float dist2 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 1., 10.), vec3(0., 0., 0.5), 0.02), dist1);
+        float dist3 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(0., 0., 10.), vec3(0., 0., 0.5), 0.02), dist2);
+        float dist4 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 1., 10.), vec3(0., 0., 0.5), 0.02), dist3);
+        float dist5 = min(distanceToCylinder(p + vec3(0., 0., 2.), vec3(1., 0., 10.), vec3(0., 0., 0.5), 0.02), dist4);
         return min(distanceToBox(p, vec3(1.,1.,0.01)), dist5);
     }
     else if (iStep == 7) {
         float dist1 = min(distanceToHalfSphere(p, vec3(0., 0., 0.), 1.0), distanceToSphere(p, vec3(2., 0., 0.5), 0.05));
         float dist2 = min(distanceToSphere(p, vec3(0., 0., 0.), 0.05), dist1);
-        float dist3 = min(distanceToCylinder(p + vec3(0., 0., 0.), vec3(2., 0., 0.5), vec3(0., 0., 0.), 0.02), distanceToCylinder(p + vec3(0., 0., 0.), vec3(1., 0., 0.25), vec3(0., 0., 0.), 0.04));
-        float dist4 = min(dist2, dist3);
+        float dist3 = min(distanceToCylinder(p + vec3(0., 0., 0.), vec3(2., 0., 0.5), vec3(0., 0., 0.), 0.02), dist2);
+        float dist4 = min(distanceToCylinder(p + vec3(0., 0., 0.), vec3(1., 0., 0.25), vec3(0., 0., 0.), 0.04), dist3);
         return dist4;
     }
-    else if (iStep == 8) {
+    else if (iStep >= 8) {
         float dist1 = min(distanceToBox(p + vec3(0., 0., 2.5), vec3(0.3,0.3,0.6)), distanceToPyramid(p + vec3(0., 0., 1.5), 0.5, vec3(-1.5, 0.0, 0.0)));
-        float dist2 = distanceToCylinder(p + vec3(0., 0., 2.), vec3(2., 0., 10.), vec3(0., 0., 0.5), 0.02);
-        float dist3 = min(dist1, dist2);
-        float dist6 = min(distanceToHalfSphere(p, vec3(0., 0., 4.), 1.0), distanceToSphere(p, vec3(0., 0., 4.), 0.05));
-        float dist10 = min(dist3, dist6);
-        for (int i = 0; i < 3; i++) {
-
+        float dist2 = min(distanceToHalfSphere(p, vec3(0., 0., 4.), 1.0), dist1);
+        float dist3 = min(distanceToSphere(p, vec3(0., 0., 4.), 0.05), dist2);
+        vec3 rayOrigin = vec3(0., 0., -1.5);
+        vec3 rayDir = normalize(vec3(0.5, 0., 0.) - rayOrigin);
+        int iterNumber = iStep - 8;
+        if (iterNumber > 5) {
+            iterNumber = 5;
         }
-        return min(distanceToBox(p, vec3(1.,1.,0.01)), dist10);
+        for (int i = 0; i < iterNumber; i++) {
+            float halfSphereDist = distanceToHalfSphere(rayOrigin, vec3(0., 0., 4.), 1.0);
+            dist3 = min(distanceToCylinder(p, rayOrigin, rayOrigin + rayDir * halfSphereDist, 0.02), dist3);
+            dist3 = min(distanceToTorus(p - rayOrigin, vec2(halfSphereDist, 0.02)), dist3);
+            dist3 = min(distanceToSphere(p, rayOrigin + rayDir * halfSphereDist, 0.05), dist3);
+            rayOrigin = rayOrigin + rayDir * halfSphereDist;
+        }
+        return min(distanceToBox(p, vec3(1.,1.,0.01)), dist3);
     }
-
     return 1000.0;
 }
 
@@ -190,7 +221,7 @@ vec3 ray_march(vec3 rO, vec3 rD) {
     float prevDis = 0.0;
     for (int i = 0; i < 100; i++) {
         dis = sceneDistance(rayOrigin);
-        if (dis < 0.01) {
+        if (dis < 0.03) {
             vec3 color = getObjectColor();
             vec3 normal = calculate_normals(rayOrigin);
             vec3 light_position = vec3(2.0, 5.0, -10.0);
@@ -198,7 +229,7 @@ vec3 ray_march(vec3 rO, vec3 rD) {
             float diffuse_intensity = max(0.0, dot(normal, direction_to_light));
             return color * diffuse_intensity;
         }
-        if (dis > 100.0 && prevDis >= dis) {
+        if (dis > 40.0 && prevDis >= dis) {
             break;
         }
         rayOrigin += rayDirection * dis;

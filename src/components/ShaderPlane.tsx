@@ -24,7 +24,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
     const [mousePosition, ] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [rotationAngleX, setRotationAngleX] = useState(180);
-    const [rotationAngleY, setRotationAngleY] = useState(0);
+    const [rotationAngleY, setRotationAngleY] = useState(0.4);
 
 
     useEffect(() => {

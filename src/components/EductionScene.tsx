@@ -44,14 +44,25 @@ function getTextByStepNumber(stepNumber: number): string {
     case 5:
       return "We now need to advance the ray into the scene, and once it hits an object, render the color of it on the screen. Here's all the rays";
     case 6:
-      return "We still got a bit of a problem, as it would be far too ressource expensive to march the ray forward by a very small amount then check if it hit anything then do this again thousands of times for each ray. We use a clever trick to prevent this very problem. We can get the distance to all objects in the scene, and then if we take the smallest distance, we know that within the range of this distance, there is no object. This is the basic principle of raymarching.";
+      return "We still got a problem, as it would be far too ressource expensive to march the ray forward by a small amount then check if it hit anything and repeat this thousands of times for each ray. We use a clever trick to prevent this : we can get the distance to all objects in the scene, and if we take the smallest distance, we know that within the range of this distance, there is no object.";
     case 7:
-        return "So as we saw, we can march the ray in their respective direction by the smallest distance to the objects in the scene. As we want to render a sphere, we need a function to get the distance to it. This can be done simply by getting the distance to the center of the sphere, and substracting the radius of the sphere. This is the distance function of a sphere.";
+      return "So we can march the ray in their respective direction by the smallest distance to the objects in the scene. As we want to render a sphere, we need a function to get the distance to it. This can be done simply by getting the distance to the center of the sphere, and substracting the radius of the sphere. This is the distance function of a sphere.";
     case 8:
-        return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 9:
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 10:
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 11:
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 12:
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 13:
+      return "We can now march the ray in its direction by the distance found multiples times until we are very close from the sphere or wander too far from it, and then render the pixel color accordingly.";
+
     default:
-        return "This is the end of the demo, I hope you enjoyed it. If you have any question, feel free to ask me by sending an email at nathanchpaps@icloud.com";
-    }
+      return "This is the end of the demo, I hope you enjoyed it. If you have any question, feel free to ask me by sending an email at nathanchpaps@icloud.com (by the way, this explaination was made in raymarching too)";
+  }
 }
 
 export default function ShaderOption({
@@ -70,17 +81,29 @@ export default function ShaderOption({
 }: ShaderOptionProps): JSX.Element {
   const text = getTextByStepNumber(stepNumber);
   return (
-    <div className="rounded-md bg-gray-800 text-2xl opacity-85 absolute right-[150px] flex flex-col top-[100px] h-[60vh] w-[18vw] items-center justify-center text-white">
-      <div className="relative top-[-60px] text-gray-400 underline font-bold text-center">
-        Education demo menu
+    <div className="bg-gray-900 p-6 rounded-2xl absolute bottom-[2vh] right-[10vh] left-[10vh] h-[35vh] text-white flex flex-row items-center justify-center border-4 border-yellow-500">
+      <div className="flex flex-col items-center justify-center">
+        <div className="text-yellow-500 font-bold text-center mb-2">
+          Instructor
+        </div>
+        <div className="bg-gray-800 p-4 rounded-md text-center">
+          <p className="mb-4">"{text}"</p>
+          <div className="flex flex-col items-center justify-center y-4">
+            <button
+              onClick={() => {stepNumber < 14 ? setStepNumber(stepNumber + 1) : setStepNumber(14)}}
+              className="text-white bg-yellow-500 rounded-md text-md px-4 py-2 mb-2"
+            >
+              Next Step
+            </button>
+            <button
+              onClick={() => {stepNumber > 0 ? setStepNumber(stepNumber - 1) : setStepNumber(0)}}
+              className="text-white bg-yellow-500 rounded-md text-md px-4 py-2"
+            >
+              Previous Step
+            </button>
+          </div>
+        </div>
       </div>
-      <p>{text}</p>
-      <button
-        onClick={() => setStepNumber(stepNumber + 1)}
-        className="text-rose-700 bg-slate-400 rounded-md text-md w-[8vw] relative bottom-0"
-      >
-        Next Step
-      </button>
     </div>
   );
 }
