@@ -86,7 +86,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
         };
 
         return uniforms;
-    }, [size.width, size.height, distance, objectSize, AA, educationScene]);
+    }, [size.width, size.height, distance, objectSize, AA]);
 
     // Create the ShaderMaterial once with useMemo
     const shaderMaterial = useMemo(() => {
@@ -96,7 +96,7 @@ const ShaderPlane = ({ color, distance, objectMode, objectSize, AA, setDistance,
             fragmentShader: (educationScene) ? fragment : demo_fragment,
             side: THREE.DoubleSide,
         });
-    }, [tuniform]);
+    }, [tuniform, educationScene]);
 
     // Update the uniform values on each frame
     useFrame(({ clock }) => {

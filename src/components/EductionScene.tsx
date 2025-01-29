@@ -54,9 +54,8 @@ export default function ShaderOption({
           <div className="flex flex-col items-center justify-center y-4">
             <button
               onClick={() => {
-                stepNumber < 14
-                  ? setStepNumber(stepNumber + 1)
-                  : setStepNumber(14);
+                if (stepNumber < 14) {setStepNumber(stepNumber + 1)}
+                else {setStepNumber(14)}
               }}
               className="text-white bg-yellow-500 rounded-md text-md px-4 py-2 mb-2"
             >
@@ -64,9 +63,8 @@ export default function ShaderOption({
             </button>
             <button
               onClick={() => {
-                stepNumber > 0
-                  ? setStepNumber(stepNumber - 1)
-                  : setStepNumber(0);
+                if (stepNumber > 0){setStepNumber(stepNumber - 1)}
+                else {setStepNumber(0);}
               }}
               className="text-white bg-yellow-500 rounded-md text-md px-4 py-2"
             >
