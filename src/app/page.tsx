@@ -45,6 +45,7 @@ export default function Home() {
             onClick={handleStartEduClick}
             className="px-6 py-3 font-semibold text-white bg-teal-500 rounded-md shadow-md hover:bg-teal-600 transition duration-300"
           >
+            {educationScene ? "Loading..." : "Explanation !!!"}
           </button>
         </div>
       </main>
