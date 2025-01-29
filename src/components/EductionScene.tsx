@@ -16,7 +16,7 @@ function getTextByStepNumber(stepNumber: number): string {
     case 4:
       return "Now that we have a camera, we can shoot rays from it to the screen. Each ray will hit the screen at a point, and we will calculate the color of this point. This is the basic principle of raymarching.";
     case 5:
-      return "We now need to advance the ray into the scene, and once it hits an object, render the color of it on the screen. Here&#39;s all the rays.";
+      return "We now need to advance the ray into the scene, and once it hits an object, render the color of it on the screen.";
     case 6:
       return "We still got a problem, as it would be far too resource expensive to march the ray forward by a small amount then check if it hit anything and repeat this thousands of times for each ray. We use a clever trick to prevent this: we can get the distance to all objects in the scene, and if we take the smallest distance, we know that within the range of this distance, there is no object.";
     case 7:
@@ -33,6 +33,8 @@ function getTextByStepNumber(stepNumber: number): string {
       return "We can now march the ray in its direction by the distance found multiple times until we are very close to the sphere or wander too far from it, and then render the pixel color accordingly.";
     case 13:
       return "We can now march the ray in its direction by the distance found multiple times until we are very close to the sphere or wander too far from it, and then render the pixel color accordingly.";
+    case 14:
+        return "If we now repeat this process for each ray representing a pixel, ending the raymarching when we are too far from the scene or the distance to an object is very low, and rendering the color of the pixels on the screen accoordingly, we get a beautiful sphere rendered with raymarching!";
     default:
       return "This is the end of the demo, I hope you enjoyed it. If you have any questions, feel free to ask me by sending an email at nathanchpaps@icloud.com (by the way, this explanation was made in raymarching too)";
   }
@@ -54,8 +56,8 @@ export default function ShaderOption({
           <div className="flex flex-col items-center justify-center y-4">
             <button
               onClick={() => {
-                if (stepNumber < 14) {setStepNumber(stepNumber + 1)}
-                else {setStepNumber(14)}
+                if (stepNumber < 15) {setStepNumber(stepNumber + 1)}
+                else {setStepNumber(15)}
               }}
               className="text-white bg-yellow-500 rounded-md text-md px-4 py-2 mb-2"
             >
