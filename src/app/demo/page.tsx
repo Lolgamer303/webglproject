@@ -9,11 +9,11 @@ type ObjectMode = "Sphere" | "Cube" | "Octahedron";
 
 export default function Page() {
     const [isClient, setIsClient] = useState(false);
-    const [color, setColor] = useState(new Vector3(1, 1, 1));
+    const [color] = useState(new Vector3(1, 1, 1));
     const [distance, setDistance] = useState(500);
-    const [objectMode, setObjectMode] = useState("Sphere" as ObjectMode);
-    const [size, setSize] = useState(25);
-    const [AA, setAA] = useState(false);
+    const [objectMode] = useState("Sphere" as ObjectMode);
+    const [size] = useState(25);
+    const [AA] = useState(false);
     const [stepNumber, setStepNumber] = useState(0)
 
     useEffect(() => {
@@ -30,16 +30,6 @@ export default function Page() {
                 )}
             </div>
             <EducationScene
-                AA={AA}
-                setAA={setAA}
-                color={color}
-                setColor={setColor}
-                distance={distance}
-                setDistance={setDistance}
-                objectMode={objectMode}
-                setObjectMode={setObjectMode}
-                setSize={setSize}
-                size={size}
                 stepNumber={stepNumber}
                 setStepNumber={setStepNumber}
             />

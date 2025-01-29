@@ -1,27 +1,7 @@
 import { useState } from "react";
 import { Vector3 } from "three";
 
-type ShaderOptionProps = {
-  color: Vector3;
-
-  setColor: React.Dispatch<React.SetStateAction<Vector3>>;
-
-  distance: number;
-
-  setDistance: React.Dispatch<React.SetStateAction<number>>;
-
-  objectMode: string;
-
-  setObjectMode: React.Dispatch<React.SetStateAction<ObjectMode>>;
-
-  size: number;
-
-  setSize: React.Dispatch<React.SetStateAction<number>>;
-
-  AA: boolean;
-
-  setAA: React.Dispatch<React.SetStateAction<boolean>>;
-
+type EducationShaderOptionProps = {
   stepNumber: number;
 
   setStepNumber: React.Dispatch<React.SetStateAction<number>>;
@@ -66,19 +46,9 @@ function getTextByStepNumber(stepNumber: number): string {
 }
 
 export default function ShaderOption({
-  AA,
-  setAA,
-  color,
-  setColor,
-  distance,
-  setDistance,
-  objectMode,
-  setObjectMode,
-  size,
-  setSize,
   stepNumber,
   setStepNumber,
-}: ShaderOptionProps): JSX.Element {
+}: EducationShaderOptionProps): JSX.Element {
   const text = getTextByStepNumber(stepNumber);
   return (
     <div className="bg-gray-900 p-6 rounded-2xl absolute bottom-[2vh] right-[10vh] left-[10vh] h-[35vh] text-white flex flex-row items-center justify-center border-4 border-yellow-500">
